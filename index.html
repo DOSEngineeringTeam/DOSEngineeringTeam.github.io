@@ -80,8 +80,34 @@ e.preventDefault();const lang=document.documentElement.lang;const a=t[lang]||t.r
 if(endpoint.includes('YOUR-API-HOST.example')){status.textContent=a[10];return}
 const data=Object.fromEntries(new FormData(form));data.consent=form.elements.consent.checked;data.language=t[lang]?lang:'ru';
 button.disabled=true;status.textContent='…';
-try{const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),signal:AbortSignal.timeout(60000)});if(!response.ok)throw new Error(response.status===429?'limited':'failed');status.textContent=a[9];form.reset()}
-catch(err){status.textContent=err.message==='limited'?a[11]:a[10]}
+try{
+const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),signal:AbortSignal.timeout(60000)});
+const result=await response.json().catch(()=>null);
+if(!response.ok){
+  const code=typeof result?.detail==='string'?result.detail:('http_'+response.status);
+  const err=new Error(response.status===429?'limited':code);err.httpStatus=response.status;throw err;
+}
+if(result?.ok!==true)throw new Error('invalid_response');
+status.textContent=a[9];form.reset()
+}
+catch(err){
+const messages={
+'Service not configured':['Приём заявок временно не настроен. Свяжитесь с нами в Telegram.','Requests are not configured yet. Please contact us on Telegram.'],
+'Origin not allowed':['Отправляйте заявку с https://dosengineeringteam.github.io.','Please submit from https://dosengineeringteam.github.io.'],
+'Consent required':['Подтвердите согласие на обработку контактных данных.','Please confirm consent to process your contact details.'],
+telegram_token_invalid:['Не удалось связаться с ботом: требуется проверка его токена.','The bot token needs to be checked.'],
+telegram_chat_not_found:['Бот не находит чат для заявок. Требуется проверка настроек.','The bot cannot find the requests chat.'],
+telegram_forbidden:['У бота нет доступа к чату заявок. Свяжитесь с нами в Telegram.','The bot cannot access the requests chat. Contact us on Telegram.'],
+telegram_rate_limited:['Telegram временно ограничил отправку. Попробуйте позже.','Telegram is temporarily limiting messages. Please try later.'],
+telegram_format_error:['Ошибка оформления заявки. Свяжитесь с нами в Telegram.','Request formatting error. Contact us on Telegram.'],
+telegram_delivery_failed:['Telegram отклонил заявку. Свяжитесь с нами в Telegram.','Telegram rejected the request. Contact us on Telegram.'],
+telegram_unavailable:['Telegram временно недоступен. Попробуйте позже.','Telegram is temporarily unavailable. Please try later.']
+};
+if(err.message==='limited')status.textContent=a[11];
+else if(messages[err.message])status.textContent=messages[err.message][lang==='ru'?0:1];
+else if(err.name==='TimeoutError'||err.name==='AbortError')status.textContent=lang==='ru'?'Сервер долго отвечает. Попробуйте отправить заявку чуть позже.':'The server is taking too long. Please try again later.';
+else status.textContent=a[10]+(err.httpStatus?' (HTTP '+err.httpStatus+')':'');
+}
 finally{button.disabled=false}
 });
 })();</script></body></html>
