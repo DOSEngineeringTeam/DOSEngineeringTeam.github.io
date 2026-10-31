@@ -29,7 +29,7 @@ let requests=[],selected=null,accessToken=null;
 async function call(path,options={}){
  const headers={'Accept':'application/json',...(options.body?{'Content-Type':'application/json'}:{}),...(accessToken?{'Authorization':'Bearer '+accessToken}:{})};
  const res=await fetch(API+path,{credentials:'omit',...options,headers:{...headers,...(options.headers||{})}});
- if(!res.ok){const error=new Error('HTTP '+res.status);error.status=res.status;throw error}
+ if(!res.ok){const error=new Error('HTTP '+res.status);error.status=res.status;error.retryAfter=res.headers.get('Retry-After');throw error}
  return res.status===204?{}:res.json();
 }
 function showLogin(msg=''){el('app').classList.add('hidden');el('login').classList.remove('hidden');el('login-status').textContent=msg}
@@ -72,7 +72,7 @@ async function init(){
 el('login-form').addEventListener('submit',async e=>{
  e.preventDefault();const btn=e.currentTarget.querySelector('button');btn.disabled=true;
  try{const form=new FormData(e.currentTarget);const result=await call('/api/admin/login',{method:'POST',body:JSON.stringify({email:form.get('email'),password:form.get('password')})});if(!result.access_token)throw Error('Missing token');accessToken=result.access_token;e.currentTarget.reset();await init()}
- catch(e){el('login-status').textContent='Вход не выполнен. Проверьте учётные данные и доступность API.'}finally{btn.disabled=false}
+ catch(e){el('login-status').textContent=e.status===429?('Слишком много неудачных попыток. Повторите вход через '+Math.ceil(Number(e.retryAfter||900)/60)+' мин.'):(e.status===401?'Неверный email или пароль.':e.status===503?'Вход администратора не настроен на сервере.':'Вход не выполнен. Проверьте подключение API.')}finally{btn.disabled=false}
 });
 el('logout').addEventListener('click',async()=>{try{await call('/api/admin/logout',{method:'POST'})}catch(e){}accessToken=null;requests=[];showLogin('Вы вышли из панели.')});
 el('refresh').addEventListener('click',load);el('query').addEventListener('input',render);el('filter').addEventListener('change',render);el('close').addEventListener('click',()=>el('details').close());
