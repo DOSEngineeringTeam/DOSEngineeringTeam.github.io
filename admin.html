@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>DOS Admin | Engineering Team</title>
+<style>
+:root{color-scheme:dark;--bg:#080a0d;--panel:#11151b;--edge:#29303b;--text:#f4f5f7;--muted:#a3adbb;--accent:#d5e5f6}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}a{color:inherit}.app{min-height:100vh;display:grid;grid-template-columns:236px minmax(0,1fr)}aside{border-right:1px solid var(--edge);padding:30px 20px;background:#0d1015}.logo{font-weight:800;letter-spacing:.13em;font-size:18px}.sub{font-size:10px;letter-spacing:.23em;color:var(--muted)}nav{display:grid;gap:8px;margin-top:46px}.navitem{padding:14px;border:1px solid var(--edge);text-align:left;background:#171d25;color:var(--text)}main{padding:38px;max-width:1600px;width:100%;margin:auto}.top{display:flex;justify-content:space-between;gap:18px;align-items:center;flex-wrap:wrap}.eyebrow{color:var(--muted);font-size:11px;letter-spacing:.18em;text-transform:uppercase}h1{font-size:clamp(28px,3vw,44px);margin:6px 0 22px}h2{font-size:20px}.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:22px 0}.tile,.panel{background:var(--panel);border:1px solid var(--edge);padding:20px}.number{font-size:34px;font-weight:750}.muted{color:var(--muted)}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}.field{background:#0b0f15;border:1px solid #384353;color:#fff;padding:11px 12px;min-width:160px;max-width:100%}.btn{background:#e9eff6;border:1px solid #e9eff6;color:#10151b;padding:11px 17px;font-weight:650}.ghost{background:none;color:#fff;border-color:#536070}.notice{padding:14px 17px;margin:18px 0;border:1px solid #5e5360;background:#211a22}.hidden{display:none!important}.tablewrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:770px}th{text-align:left;font-size:12px;color:var(--muted);font-weight:600}td,th{padding:14px;border-bottom:1px solid var(--edge)}td button{color:#fff;background:transparent;border:1px solid #536070;padding:6px 10px}.pill{border:1px solid #536070;padding:3px 8px;font-size:12px;display:inline-block}.stack{display:grid;gap:12px}.details{display:grid;grid-template-columns:1fr 1fr;gap:14px}.details>div{overflow-wrap:anywhere}.value{white-space:pre-wrap}.login{max-width:450px;margin:9vh auto;padding:34px;background:var(--panel);border:1px solid var(--edge)}label{display:grid;gap:7px;color:var(--muted);font-size:13px}.login input{width:100%}dialog{width:min(680px,95vw);max-height:90vh;overflow:auto;border:1px solid #526072;background:#11151b;color:#fff;padding:25px}dialog::backdrop{background:rgba(0,0,0,.8)}.dialogtop{display:flex;justify-content:space-between;gap:10px;align-items:center}@media(max-width:950px){.app{grid-template-columns:1fr}aside{padding:16px;border-right:0;border-bottom:1px solid var(--edge)}nav{margin-top:12px}main{padding:20px}.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){.tiles,.details{grid-template-columns:1fr}.login{margin:4vh 15px}}
+</style></head><body>
+<section id="login" class="login">
+<div class="eyebrow">Secure workspace</div><h1>DOS Admin</h1><p class="muted">Вход только для уполномоченных сотрудников DOS Engineering Team.</p>
+<form id="login-form" class="stack"><label>Email<input class="field" name="email" type="email" autocomplete="username" required></label><label>Пароль<input class="field" name="password" type="password" autocomplete="current-password" required></label><button class="btn" type="submit">Войти</button></form>
+<p id="login-status" role="status" class="muted"></p><a class="muted" href="/">← На главный сайт</a>
+</section>
+<div id="app" class="app hidden">
+<aside><div class="logo">DOS<span style="color:#9baabd"> / ADMIN</span></div><div class="sub">ENGINEERING TEAM</div><nav><button class="navitem" type="button">▦ Заявки и проекты</button><a class="navitem" href="/" style="text-decoration:none">↗ Главный сайт</a></nav></aside>
+<main><div class="top"><div><div class="eyebrow">OPERATIONS CONTROL CENTER</div><h1>Управление заявками</h1></div><div><span id="identity" class="muted"></span> <button id="logout" class="btn ghost">Выйти</button></div></div>
+<div class="tiles"><div class="tile"><div class="muted">Всего заявок</div><div id="n-all" class="number">—</div></div><div class="tile"><div class="muted">Новые</div><div id="n-new" class="number">—</div></div><div class="tile"><div class="muted">В работе</div><div id="n-progress" class="number">—</div></div><div class="tile"><div class="muted">Завершённые</div><div id="n-done" class="number">—</div></div></div>
+<section class="panel"><div class="top"><h2>Реестр заказов</h2><button class="btn ghost" id="refresh">Обновить</button></div>
+<div class="toolbar"><input id="query" class="field" placeholder="Поиск по номеру, клиенту, услуге" aria-label="Поиск"><select id="filter" class="field" aria-label="Фильтр по статусу"><option value="">Все статусы</option><option value="new">Новые</option><option value="in_progress">В работе</option><option value="completed">Завершены</option><option value="cancelled">Отменены</option></select></div>
+<div id="notice" role="status" class="notice hidden"></div><div class="tablewrap"><table><thead><tr><th>№</th><th>Клиент</th><th>Услуга</th><th>Статус</th><th>Дата</th><th>Подробнее</th></tr></thead><tbody id="rows"><tr><td colspan="6" class="muted">Загрузка...</td></tr></tbody></table></div></section>
+</main></div>
+<dialog id="details"><div class="dialogtop"><h2>Карточка заявки</h2><button id="close" class="btn ghost">Закрыть</button></div><div id="detail-content" class="details"></div>
+<form id="status-form" class="stack" style="margin-top:24px"><label>Статус<select id="new-status" class="field"><option value="new">Новая</option><option value="in_progress">В работе</option><option value="completed">Завершена</option><option value="cancelled">Отменена</option></select></label><button type="submit" class="btn">Сохранить статус</button><div id="update-status" role="status" class="muted"></div></form></dialog>
+<script>
+'use strict';
+// Backend must implement secure session cookies, admin authorization and CSRF protection.
+// API is deliberately fail-closed: no credentials or application data are embedded in this page.
+const API='https://dos-request-api.onrender.com';
+const el=id=>document.getElementById(id);
+const label={new:'Новая',in_progress:'В работе',completed:'Завершена',cancelled:'Отменена'};
+let requests=[],selected=null,csrf=null;
+async function call(path,options={}){
+ const headers={'Accept':'application/json',...(options.body?{'Content-Type':'application/json'}:{}),...(csrf?{'X-CSRF-Token':csrf}:{})};
+ const res=await fetch(API+path,{credentials:'include',...options,headers:{...headers,...(options.headers||{})}});
+ if(!res.ok){const error=new Error('HTTP '+res.status);error.status=res.status;throw error}
+ return res.status===204?{}:res.json();
+}
+function showLogin(msg=''){el('app').classList.add('hidden');el('login').classList.remove('hidden');el('login-status').textContent=msg}
+function showApp(user){el('login').classList.add('hidden');el('app').classList.remove('hidden');el('identity').textContent=user.email||'Администратор'}
+function notice(msg){el('notice').textContent=msg;el('notice').classList.remove('hidden')}
+const str=v=>v===null||v===undefined?'—':String(v);
+const date=v=>{if(!v)return '—';const d=new Date(v);return Number.isNaN(+d)?String(v):d.toLocaleString('ru-RU')};
+function cell(row,value){const td=document.createElement('td');td.textContent=str(value);row.append(td);return td}
+function render(){
+ const q=el('query').value.trim().toLowerCase(),status=el('filter').value;
+ el('n-all').textContent=requests.length;
+ el('n-new').textContent=requests.filter(r=>r.status==='new').length;
+ el('n-progress').textContent=requests.filter(r=>r.status==='in_progress').length;
+ el('n-done').textContent=requests.filter(r=>r.status==='completed').length;
+ const subset=requests.filter(r=>(!status||r.status===status)&&(!q||[r.request_number,r.id,r.name,r.service].some(x=>str(x).toLowerCase().includes(q))));
+ el('rows').replaceChildren();
+ if(!subset.length){const tr=document.createElement('tr');const td=cell(tr,'Заявок не найдено');td.colSpan=6;el('rows').append(tr);return}
+ for(const r of subset){
+  const tr=document.createElement('tr');cell(tr,r.request_number??r.id);cell(tr,r.name);cell(tr,r.service);cell(tr,label[r.status]||r.status);cell(tr,date(r.created_at));
+  const td=document.createElement('td'),btn=document.createElement('button');btn.textContent='Открыть';btn.addEventListener('click',()=>openDetails(r));td.append(btn);tr.append(td);el('rows').append(tr);
+ }
+}
+function openDetails(r){
+ selected=r;el('detail-content').replaceChildren();el('update-status').textContent='';
+ for(const [name,value] of [['Номер',r.request_number??r.id],['Клиент',r.name],['Контакт',r.contact],['Услуга',r.service],['Бюджет',r.budget],['Дата',date(r.created_at)],['Описание',r.description]]){
+  const div=document.createElement('div'),title=document.createElement('div'),content=document.createElement('div');title.className='muted';title.textContent=name;content.className='value';content.textContent=str(value);div.append(title,content);el('detail-content').append(div);
+ }
+ el('new-status').value=label[r.status]?r.status:'new';el('details').showModal();
+}
+async function load(){
+ try{
+  const data=await call('/api/admin/requests');if(!Array.isArray(data.items))throw Error('Unexpected response');
+  requests=data.items;el('notice').classList.add('hidden');render();
+ }catch(e){requests=[];render();notice('Не удалось загрузить заявки. Проверьте доступ администратора и подключение API. ('+e.message+')');if(e.status===401||e.status===403)showLogin('Сеанс завершён или нет прав администратора.')}
+}
+async function init(){
+ try{const data=await call('/api/admin/me');if(data.role!=='admin')throw Error('Forbidden');csrf=data.csrf_token||null;showApp(data);await load()}
+ catch(e){showLogin('Для доступа необходим действующий аккаунт администратора и серверная авторизация.')}
+}
+el('login-form').addEventListener('submit',async e=>{
+ e.preventDefault();const btn=e.currentTarget.querySelector('button');btn.disabled=true;
+ try{const form=new FormData(e.currentTarget);await call('/api/admin/login',{method:'POST',body:JSON.stringify({email:form.get('email'),password:form.get('password')})});e.currentTarget.reset();await init()}
+ catch(e){el('login-status').textContent='Вход не выполнен. Проверьте учётные данные и доступность API.'}finally{btn.disabled=false}
+});
+el('logout').addEventListener('click',async()=>{try{await call('/api/admin/logout',{method:'POST'})}catch(e){}csrf=null;requests=[];showLogin('Вы вышли из панели.')});
+el('refresh').addEventListener('click',load);el('query').addEventListener('input',render);el('filter').addEventListener('change',render);el('close').addEventListener('click',()=>el('details').close());
+el('status-form').addEventListener('submit',async e=>{
+ e.preventDefault();if(!selected)return;const btn=e.currentTarget.querySelector('button');btn.disabled=true;
+ try{
+  await call('/api/admin/requests/'+encodeURIComponent(selected.id)+'/status',{method:'PATCH',body:JSON.stringify({status:el('new-status').value})});
+  el('details').close();await load();
+ }catch(err){el('update-status').textContent='Ошибка сохранения статуса: '+err.message}finally{btn.disabled=false}
+});
+init();
+</script></body></html>
