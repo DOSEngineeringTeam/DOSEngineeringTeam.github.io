@@ -42,7 +42,7 @@ let requests=[],selected=null,accessToken=null,currentUser=null;
 async function call(path,options={}){
  const headers={'Accept':'application/json',...(options.body?{'Content-Type':'application/json'}:{}),...(accessToken?{'Authorization':'Bearer '+accessToken}:{})};
  const res=await fetch(API+path,{credentials:'omit',...options,headers:{...headers,...(options.headers||{})}});
- if(!res.ok){const error=new Error('HTTP '+res.status);error.status=res.status;error.retryAfter=res.headers.get('Retry-After');throw error}
+ if(!res.ok){const error=new Error('HTTP '+res.status);error.status=res.status;error.retryAfter=res.headers.get('Retry-After');if(res.status===401&&accessToken&&path!=='/api/admin/login'){accessToken=null;currentUser=null;requests=[];showLogin('Сеанс завершён. Войдите заново.')}throw error}
  return res.status===204?{}:res.json();
 }
 function showLogin(msg=''){el('app').classList.add('hidden');el('login').classList.remove('hidden');el('login-status').textContent=msg}
