@@ -6,14 +6,21 @@
 .board{display:grid;grid-template-columns:repeat(3,minmax(220px,1fr));gap:12px;overflow-x:auto}.lane{background:#0d1117;border:1px solid var(--edge);padding:12px;border-radius:8px;min-height:170px}.lane h3{font-size:14px;margin:0 0 12px}.project{padding:12px;background:#1b222c;border:1px solid #3b4656;margin-bottom:10px;border-radius:6px;cursor:grab}.project strong{display:block}.project small{display:block;color:var(--muted);overflow-wrap:anywhere}.project.overdue{border-color:#d47777}.lane.dragover{outline:2px solid #d5e5f6}.board-message{color:var(--muted);font-size:13px}@media(max-width:800px){.board{grid-template-columns:repeat(3,minmax(235px,1fr)}}
 </style></head><body>
 <section id="login" class="login">
-<div class="eyebrow">Secure workspace</div><h1>DOS Admin</h1><div class="muted" style="font-size:11px">DOS ADMIN v1.3</div><p class="muted">Вход только для уполномоченных сотрудников DOS Engineering Team.</p>
+<div class="eyebrow">Secure workspace</div><h1>DOS Admin</h1><div class="muted" style="font-size:11px">DOS ADMIN v1.4</div><p class="muted">Вход только для уполномоченных сотрудников DOS Engineering Team.</p>
 <form id="login-form" class="stack"><label>Email<input class="field" name="email" type="email" autocomplete="username" required></label><label>Пароль<input class="field" name="password" type="password" autocomplete="current-password" required></label><button class="btn" type="submit">Войти</button></form>
 <p id="login-status" role="status" class="muted"></p><a class="muted" href="/">← На главный сайт</a>
 </section>
 <div id="app" class="app hidden">
-<aside><div class="logo">DOS<span style="color:#9baabd"> / ADMIN</span></div><div class="sub">ENGINEERING TEAM</div><nav><button class="navitem" type="button" id="nav-requests">▦ Заявки и проекты</button><button class="navitem" id="nav-board" type="button">▤ DOS Project Board</button><button class="navitem hidden" type="button" id="settings-open">⚙ Настройки Owner</button><a class="navitem" href="/" style="text-decoration:none">↗ Главный сайт</a></nav></aside>
+<aside><div class="logo">DOS<span style="color:#9baabd"> / ADMIN</span></div><div class="sub">ENGINEERING TEAM</div><nav><button class="navitem" type="button" id="nav-requests">▦ Заявки и проекты</button><button class="navitem" id="nav-board" type="button">▤ DOS Project Board</button><button class="navitem" id="nav-analytics" type="button">▥ DOS Analytics</button><button class="navitem hidden" type="button" id="settings-open">⚙ Настройки Owner</button><a class="navitem" href="/" style="text-decoration:none">↗ Главный сайт</a></nav></aside>
 <main><div class="top"><div><div class="eyebrow">OPERATIONS CONTROL CENTER</div><h1>Управление заявками</h1></div><div><span id="identity" class="muted"></span> <button id="logout" class="btn ghost">Выйти</button></div></div>
 <div class="tiles"><div class="tile"><div class="muted">Всего заявок</div><div id="n-all" class="number">—</div></div><div class="tile"><div class="muted">Новые</div><div id="n-new" class="number">—</div></div><div class="tile"><div class="muted">В работе</div><div id="n-progress" class="number">—</div></div><div class="tile"><div class="muted">Завершённые</div><div id="n-done" class="number">—</div></div></div>
+<section id="analytics-section" class="panel hidden" style="margin-bottom:20px">
+<div class="top"><h2>DOS Analytics</h2><button class="btn ghost" id="analytics-export" type="button">Экспорт CSV для Excel</button></div>
+<div class="toolbar"><label>С даты<input class="field" id="analytics-from" type="date"></label><label>По дату<input class="field" id="analytics-to" type="date"></label><button class="btn" type="button" id="analytics-apply">Применить</button><button class="btn ghost" type="button" id="analytics-reset">Все даты</button></div>
+<div id="analytics-info" class="muted" role="status"></div>
+<div class="tiles" style="grid-template-columns:repeat(auto-fit,minmax(155px,1fr))"><div class="tile"><div class="muted">Всего заказов</div><div id="a-total" class="number">—</div></div><div class="tile"><div class="muted">Активные</div><div id="a-active" class="number">—</div></div><div class="tile"><div class="muted">Завершено</div><div id="a-completed" class="number">—</div></div><div class="tile"><div class="muted">Просрочены</div><div id="a-overdue" class="number">—</div></div><div class="tile"><div class="muted">Дедлайн ≤7 дней</div><div id="a-upcoming" class="number">—</div></div></div>
+<h2>Заказы по этапам</h2><div id="analytics-statuses" class="stack"></div><h2>Новые заявки по дням</h2><div id="analytics-timeline" class="stack"></div><h2>Статистика исполнителей</h2><div class="tablewrap"><table><thead><tr><th>Сотрудник</th><th>Всего</th><th>Активные</th><th>Завершено</th><th>Просрочено</th></tr></thead><tbody id="analytics-team"></tbody></table></div>
+<p class="muted" style="font-size:12px">Период фильтрует заявки по дате создания. Статусы и дедлайны показываются в текущем состоянии выбранных заявок. Выгрузка содержит технические поля заказов без контактов клиентов.</p></section>
 <section id="board-section" class="panel hidden" style="margin-bottom:20px"><div class="top"><h2>DOS Project Board</h2><span class="board-message">Перетащите заявку в другую колонку или откройте её</span></div><div id="board" class="board"></div><h2>Загрузка команды</h2><div id="workload" class="stack muted"></div></section><section id="list-section" class="panel"><div class="top"><h2>Реестр заказов</h2><button class="btn ghost" id="refresh">Обновить</button></div>
 <div class="toolbar"><input id="query" class="field" placeholder="Поиск по номеру, клиенту, услуге" aria-label="Поиск"><select id="filter" class="field" aria-label="Фильтр по статусу"><option value="">Все статусы</option><option value="new">Новые</option><option value="reviewing">На рассмотрении</option><option value="accepted">Принята</option><option value="in_progress">В работе</option><option value="completed">Завершены</option><option value="cancelled">Отменены</option></select></div>
 <div id="notice" role="status" class="notice hidden"></div><div class="tablewrap"><table><thead><tr><th>№</th><th>Клиент</th><th>Услуга</th><th>Статус</th><th>Дата</th><th>Подробнее</th></tr></thead><tbody id="rows"><tr><td colspan="6" class="muted">Загрузка...</td></tr></tbody></table></div></section>
@@ -40,6 +47,52 @@ function notice(msg){el('notice').textContent=msg;el('notice').classList.remove(
 const str=v=>v===null||v===undefined?'—':String(v);
 const date=v=>{if(!v)return '—';const d=new Date(v);return Number.isNaN(+d)?String(v):d.toLocaleString('ru-RU')};
 function cell(row,value){const td=document.createElement('td');td.textContent=str(value);row.append(td);return td}
+let analyticsData=null;
+function view(name){
+ for(const section of ['list','board','analytics'])el(section+'-section').classList.toggle('hidden',section!==name);
+ if(name==='board')renderBoard();
+ if(name==='analytics')loadAnalytics();
+}
+function barRows(target,items){
+ const box=el(target);box.replaceChildren();
+ const max=Math.max(1,...items.map(x=>x[1]));
+ if(!items.length){box.textContent='Нет данных за выбранный период';return}
+ for(const [name,count] of items){
+  const holder=document.createElement('div');holder.style.margin='8px 0';
+  const text=document.createElement('div');text.textContent=name+' — '+count;
+  const track=document.createElement('div');track.style.cssText='height:10px;background:#27313e;border-radius:6px;overflow:hidden';
+  const fill=document.createElement('div');fill.style.cssText='height:100%;background:#a5c5e5;width:'+Math.round(count/max*100)+'%';
+  track.append(fill);holder.append(text,track);box.append(holder);
+ }
+}
+async function loadAnalytics(){
+ const params=new URLSearchParams();
+ if(el('analytics-from').value)params.set('start_date',el('analytics-from').value);
+ if(el('analytics-to').value)params.set('end_date',el('analytics-to').value);
+ el('analytics-info').textContent='Загружаем аналитику...';
+ try{
+  const a=await call('/api/admin/analytics'+(params.toString()?'?'+params:''));
+  analyticsData=a;
+  el('a-total').textContent=a.total;
+  el('a-active').textContent=(a.statuses.new||0)+(a.statuses.reviewing||0)+(a.statuses.accepted||0)+(a.statuses.in_progress||0);
+  el('a-completed').textContent=a.statuses.completed||0;
+  el('a-overdue').textContent=a.overdue;
+  el('a-upcoming').textContent=a.upcoming_7_days;
+  barRows('analytics-statuses',Object.entries(label).map(([status,name])=>[name,a.statuses[status]||0]));
+  barRows('analytics-timeline',a.timeline.map(x=>[x.date,x.count]));
+  const body=el('analytics-team');body.replaceChildren();
+  for(const member of a.team){const row=document.createElement('tr');for(const v of [member.email,member.total,member.active,member.completed,member.overdue])cell(row,v);body.append(row)}
+  if(!a.team.length){const row=document.createElement('tr'),td=cell(row,'Нет данных');td.colSpan=5;body.append(row)}
+  el('analytics-info').textContent='Показатели обновлены · '+new Date().toLocaleTimeString('ru-RU');
+ }catch(err){analyticsData=null;el('analytics-info').textContent='Ошибка загрузки аналитики: '+err.message}
+}
+function exportAnalytics(){
+ if(!analyticsData){el('analytics-info').textContent='Сначала загрузите аналитику';return}
+ const rows=[['id','created_at','service','status','assignee_email','due_date'],...analyticsData.export_rows.map(r=>[r.id,r.created_at,r.service,r.status,r.assignee_email,r.due_date])];
+ const csv='\uFEFF'+rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\r\n');
+ const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+ const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='dos-analytics-'+new Date().toISOString().slice(0,10)+'.csv';document.body.append(a);a.click();a.remove();URL.revokeObjectURL(url);
+}
 function renderBoard(){
  const board=el('board');board.replaceChildren();
  const lanes=[['new','Новые'],['reviewing','На рассмотрении'],['accepted','Приняты'],['in_progress','В работе'],['completed','Завершены'],['cancelled','Отменены']];
@@ -133,8 +186,12 @@ el('staff-form').addEventListener('submit',async e=>{
  try{const email=el('staff-email').value.trim(),password=el('staff-password').value;await call('/api/admin/staff',{method:'POST',body:JSON.stringify({email,password})});form.reset();el('staff-status').textContent='Сотрудник создан. Передайте ему пароль приватным способом и попросите изменить его при внедрении смены пароля.';await refreshStaff()}
  catch(err){el('staff-status').textContent='Не удалось создать сотрудника: '+err.message}finally{btn.disabled=false}
 });
-el('nav-board').addEventListener('click',()=>{el('board-section').classList.remove('hidden');el('list-section').classList.add('hidden');renderBoard()});
-el('nav-requests').addEventListener('click',()=>{el('board-section').classList.add('hidden');el('list-section').classList.remove('hidden')});
+el('nav-board').addEventListener('click',()=>view('board'));
+el('nav-requests').addEventListener('click',()=>view('list'));
+el('nav-analytics').addEventListener('click',()=>view('analytics'));
+el('analytics-apply').addEventListener('click',loadAnalytics);
+el('analytics-reset').addEventListener('click',()=>{el('analytics-from').value='';el('analytics-to').value='';loadAnalytics()});
+el('analytics-export').addEventListener('click',exportAnalytics);
 el('save-deadline').addEventListener('click',async()=>{if(!selected)return;const btn=el('save-deadline');btn.disabled=true;
  try{await call('/api/admin/requests/'+selected.id+'/deadline',{method:'PATCH',body:JSON.stringify({due_date:el('deadline').value||null})});el('deadline-status').textContent='Срок сохранён';await refreshDetails();await load()}
  catch(err){el('deadline-status').textContent='Ошибка: '+err.message}finally{btn.disabled=false}
