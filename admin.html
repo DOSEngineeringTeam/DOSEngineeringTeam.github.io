@@ -3,22 +3,23 @@
 <style>
 :root{color-scheme:dark;--bg:#080a0d;--panel:#11151b;--edge:#29303b;--text:#f4f5f7;--muted:#a3adbb;--accent:#d5e5f6}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}a{color:inherit}.app{min-height:100vh;display:grid;grid-template-columns:236px minmax(0,1fr)}aside{border-right:1px solid var(--edge);padding:30px 20px;background:#0d1015}.logo{font-weight:800;letter-spacing:.13em;font-size:18px}.sub{font-size:10px;letter-spacing:.23em;color:var(--muted)}nav{display:grid;gap:8px;margin-top:46px}.navitem{padding:14px;border:1px solid var(--edge);text-align:left;background:#171d25;color:var(--text)}main{padding:38px;max-width:1600px;width:100%;margin:auto}.top{display:flex;justify-content:space-between;gap:18px;align-items:center;flex-wrap:wrap}.eyebrow{color:var(--muted);font-size:11px;letter-spacing:.18em;text-transform:uppercase}h1{font-size:clamp(28px,3vw,44px);margin:6px 0 22px}h2{font-size:20px}.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:22px 0}.tile,.panel{background:var(--panel);border:1px solid var(--edge);padding:20px}.number{font-size:34px;font-weight:750}.muted{color:var(--muted)}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}.field{background:#0b0f15;border:1px solid #384353;color:#fff;padding:11px 12px;min-width:160px;max-width:100%}.btn{background:#e9eff6;border:1px solid #e9eff6;color:#10151b;padding:11px 17px;font-weight:650}.ghost{background:none;color:#fff;border-color:#536070}.notice{padding:14px 17px;margin:18px 0;border:1px solid #5e5360;background:#211a22}.hidden{display:none!important}.tablewrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:770px}th{text-align:left;font-size:12px;color:var(--muted);font-weight:600}td,th{padding:14px;border-bottom:1px solid var(--edge)}td button{color:#fff;background:transparent;border:1px solid #536070;padding:6px 10px}.pill{border:1px solid #536070;padding:3px 8px;font-size:12px;display:inline-block}.stack{display:grid;gap:12px}.details{display:grid;grid-template-columns:1fr 1fr;gap:14px}.details>div{overflow-wrap:anywhere}.value{white-space:pre-wrap}.login{max-width:450px;margin:9vh auto;padding:34px;background:var(--panel);border:1px solid var(--edge)}label{display:grid;gap:7px;color:var(--muted);font-size:13px}.login input{width:100%}dialog{width:min(680px,95vw);max-height:90vh;overflow:auto;border:1px solid #526072;background:#11151b;color:#fff;padding:25px}dialog::backdrop{background:rgba(0,0,0,.8)}.dialogtop{display:flex;justify-content:space-between;gap:10px;align-items:center}@media(max-width:950px){.app{grid-template-columns:1fr}aside{padding:16px;border-right:0;border-bottom:1px solid var(--edge)}nav{margin-top:12px}main{padding:20px}.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){.tiles,.details{grid-template-columns:1fr}.login{margin:4vh 15px}}
+.board{display:grid;grid-template-columns:repeat(3,minmax(220px,1fr));gap:12px;overflow-x:auto}.lane{background:#0d1117;border:1px solid var(--edge);padding:12px;border-radius:8px;min-height:170px}.lane h3{font-size:14px;margin:0 0 12px}.project{padding:12px;background:#1b222c;border:1px solid #3b4656;margin-bottom:10px;border-radius:6px;cursor:grab}.project strong{display:block}.project small{display:block;color:var(--muted);overflow-wrap:anywhere}.project.overdue{border-color:#d47777}.lane.dragover{outline:2px solid #d5e5f6}.board-message{color:var(--muted);font-size:13px}@media(max-width:800px){.board{grid-template-columns:repeat(3,minmax(235px,1fr)}}
 </style></head><body>
 <section id="login" class="login">
-<div class="eyebrow">Secure workspace</div><h1>DOS Admin</h1><div class="muted" style="font-size:11px">DOS ADMIN v1.2</div><p class="muted">Вход только для уполномоченных сотрудников DOS Engineering Team.</p>
+<div class="eyebrow">Secure workspace</div><h1>DOS Admin</h1><div class="muted" style="font-size:11px">DOS ADMIN v1.3</div><p class="muted">Вход только для уполномоченных сотрудников DOS Engineering Team.</p>
 <form id="login-form" class="stack"><label>Email<input class="field" name="email" type="email" autocomplete="username" required></label><label>Пароль<input class="field" name="password" type="password" autocomplete="current-password" required></label><button class="btn" type="submit">Войти</button></form>
 <p id="login-status" role="status" class="muted"></p><a class="muted" href="/">← На главный сайт</a>
 </section>
 <div id="app" class="app hidden">
-<aside><div class="logo">DOS<span style="color:#9baabd"> / ADMIN</span></div><div class="sub">ENGINEERING TEAM</div><nav><button class="navitem" type="button">▦ Заявки и проекты</button><button class="navitem hidden" type="button" id="settings-open">⚙ Настройки Owner</button><a class="navitem" href="/" style="text-decoration:none">↗ Главный сайт</a></nav></aside>
+<aside><div class="logo">DOS<span style="color:#9baabd"> / ADMIN</span></div><div class="sub">ENGINEERING TEAM</div><nav><button class="navitem" type="button" id="nav-requests">▦ Заявки и проекты</button><button class="navitem" id="nav-board" type="button">▤ DOS Project Board</button><button class="navitem hidden" type="button" id="settings-open">⚙ Настройки Owner</button><a class="navitem" href="/" style="text-decoration:none">↗ Главный сайт</a></nav></aside>
 <main><div class="top"><div><div class="eyebrow">OPERATIONS CONTROL CENTER</div><h1>Управление заявками</h1></div><div><span id="identity" class="muted"></span> <button id="logout" class="btn ghost">Выйти</button></div></div>
 <div class="tiles"><div class="tile"><div class="muted">Всего заявок</div><div id="n-all" class="number">—</div></div><div class="tile"><div class="muted">Новые</div><div id="n-new" class="number">—</div></div><div class="tile"><div class="muted">В работе</div><div id="n-progress" class="number">—</div></div><div class="tile"><div class="muted">Завершённые</div><div id="n-done" class="number">—</div></div></div>
-<section class="panel"><div class="top"><h2>Реестр заказов</h2><button class="btn ghost" id="refresh">Обновить</button></div>
+<section id="board-section" class="panel hidden" style="margin-bottom:20px"><div class="top"><h2>DOS Project Board</h2><span class="board-message">Перетащите заявку в другую колонку или откройте её</span></div><div id="board" class="board"></div><h2>Загрузка команды</h2><div id="workload" class="stack muted"></div></section><section id="list-section" class="panel"><div class="top"><h2>Реестр заказов</h2><button class="btn ghost" id="refresh">Обновить</button></div>
 <div class="toolbar"><input id="query" class="field" placeholder="Поиск по номеру, клиенту, услуге" aria-label="Поиск"><select id="filter" class="field" aria-label="Фильтр по статусу"><option value="">Все статусы</option><option value="new">Новые</option><option value="reviewing">На рассмотрении</option><option value="accepted">Принята</option><option value="in_progress">В работе</option><option value="completed">Завершены</option><option value="cancelled">Отменены</option></select></div>
 <div id="notice" role="status" class="notice hidden"></div><div class="tablewrap"><table><thead><tr><th>№</th><th>Клиент</th><th>Услуга</th><th>Статус</th><th>Дата</th><th>Подробнее</th></tr></thead><tbody id="rows"><tr><td colspan="6" class="muted">Загрузка...</td></tr></tbody></table></div></section>
 </main></div>
 <dialog id="settings-dialog"><div class="dialogtop"><h2>Системные настройки</h2><button class="btn ghost" type="button" id="settings-close">Закрыть</button></div><div id="settings-content" class="stack muted"></div><h2>Сотрудники</h2><div id="staff-list" class="stack"></div><h2>Добавить менеджера</h2><form id="staff-form" class="stack"><label>Email<input type="email" class="field" id="staff-email" required autocomplete="off"></label><label>Первоначальный пароль (от 12 символов)<input type="password" class="field" id="staff-password" minlength="12" required autocomplete="new-password"></label><button class="btn" type="submit">Создать сотрудника</button><p class="muted" id="staff-status" role="status"></p></form></dialog>
-<dialog id="details"><div class="dialogtop"><h2>Карточка заявки</h2><button id="close" class="btn ghost">Закрыть</button></div><div id="detail-content" class="details"></div><section class="stack" style="margin-top:20px"><label>Ответственный<select class="field" id="assignee"><option value="">Не назначен</option></select></label><button class="btn ghost" type="button" id="save-assignee">Назначить ответственного</button><div class="muted" id="assignee-status" role="status"></div><h2>Внутренние комментарии</h2><div class="stack" id="comments"></div><form id="comment-form" class="stack"><label>Добавить заметку<textarea class="field" id="comment-message" maxlength="2000" required rows="3"></textarea></label><button class="btn ghost" type="submit">Сохранить комментарий</button></form><div id="comment-status" class="muted" role="status"></div><h2>Журнал действий</h2><div id="activity" class="stack muted"></div></section>
+<dialog id="details"><div class="dialogtop"><h2>Карточка заявки</h2><button id="close" class="btn ghost">Закрыть</button></div><div id="detail-content" class="details"></div><label style="margin-top:16px">Дедлайн<input id="deadline" type="date" class="field"></label><button type="button" id="save-deadline" class="btn ghost" style="margin-top:8px">Сохранить срок</button><p id="deadline-status" role="status" class="muted"></p><section class="stack" style="margin-top:20px"><label>Ответственный<select class="field" id="assignee"><option value="">Не назначен</option></select></label><button class="btn ghost" type="button" id="save-assignee">Назначить ответственного</button><div class="muted" id="assignee-status" role="status"></div><h2>Внутренние комментарии</h2><div class="stack" id="comments"></div><form id="comment-form" class="stack"><label>Добавить заметку<textarea class="field" id="comment-message" maxlength="2000" required rows="3"></textarea></label><button class="btn ghost" type="submit">Сохранить комментарий</button></form><div id="comment-status" class="muted" role="status"></div><h2>Журнал действий</h2><div id="activity" class="stack muted"></div></section>
 <form id="status-form" class="stack" style="margin-top:24px"><label>Статус<select id="new-status" class="field"><option value="new">Новая</option><option value="reviewing">На рассмотрении</option><option value="accepted">Принята</option><option value="in_progress">В работе</option><option value="completed">Завершена</option><option value="cancelled">Отменена</option></select></label><button type="submit" class="btn">Сохранить статус</button><div id="update-status" role="status" class="muted"></div></form></dialog>
 <script>
 'use strict';
@@ -39,12 +40,39 @@ function notice(msg){el('notice').textContent=msg;el('notice').classList.remove(
 const str=v=>v===null||v===undefined?'—':String(v);
 const date=v=>{if(!v)return '—';const d=new Date(v);return Number.isNaN(+d)?String(v):d.toLocaleString('ru-RU')};
 function cell(row,value){const td=document.createElement('td');td.textContent=str(value);row.append(td);return td}
+function renderBoard(){
+ const board=el('board');board.replaceChildren();
+ const lanes=[['new','Новые'],['reviewing','На рассмотрении'],['accepted','Приняты'],['in_progress','В работе'],['completed','Завершены'],['cancelled','Отменены']];
+ for(const [status,title] of lanes){
+  const lane=document.createElement('div');lane.className='lane';const h=document.createElement('h3');h.textContent=title+' · '+requests.filter(r=>r.status===status).length;lane.append(h);
+  lane.addEventListener('dragover',e=>{e.preventDefault();lane.classList.add('dragover')});
+  lane.addEventListener('dragleave',()=>lane.classList.remove('dragover'));
+  lane.addEventListener('drop',async e=>{
+   e.preventDefault();lane.classList.remove('dragover');const id=Number(e.dataTransfer.getData('text/plain'));const row=requests.find(r=>r.id===id);
+   if(!row||row.status===status)return;
+   try{await call('/api/admin/requests/'+id+'/status',{method:'PATCH',body:JSON.stringify({status})});await load()}catch(err){notice('Не удалось переместить заказ: '+err.message)}
+  });
+  for(const r of requests.filter(r=>r.status===status)){
+   const p=document.createElement('div');p.className='project';p.draggable=true;p.addEventListener('dragstart',e=>e.dataTransfer.setData('text/plain',String(r.id)));
+   const heading=document.createElement('strong');heading.textContent=r.request_number||r.id;const desc=document.createElement('small');desc.textContent=r.name+' · '+r.service;p.append(heading,desc);
+   const deadline=document.createElement('small');const late=r.due_date&&r.due_date<new Date().toLocaleDateString('en-CA')&&!['completed','cancelled'].includes(r.status);
+   if(late)p.classList.add('overdue');deadline.textContent='Срок: '+(r.due_date||'не задан')+(late?' · ПРОСРОЧЕН':'');p.append(deadline);
+   const employee=document.createElement('small');employee.textContent='Исполнитель: '+(r.assignee_email||'не назначен');p.append(employee);
+   const open=document.createElement('button');open.type='button';open.textContent='Открыть';open.className='btn ghost';open.style.marginTop='8px';open.addEventListener('click',()=>openDetails(r));p.append(open);lane.append(p);
+  }
+  board.append(lane);
+ }
+ const stats=new Map();for(const r of requests.filter(r=>!['completed','cancelled'].includes(r.status))){const name=r.assignee_email||'Без исполнителя';stats.set(name,(stats.get(name)||0)+1)}
+ const workload=el('workload');workload.replaceChildren();for(const [email,n] of [...stats].sort((a,b)=>b[1]-a[1])){const p=document.createElement('div');p.textContent=email+' — активных заказов: '+n;workload.append(p)}
+ if(!stats.size)workload.textContent='Активных заказов пока нет';
+}
 function render(){
  const q=el('query').value.trim().toLowerCase(),status=el('filter').value;
  el('n-all').textContent=requests.length;
  el('n-new').textContent=requests.filter(r=>r.status==='new').length;
  el('n-progress').textContent=requests.filter(r=>r.status==='in_progress').length;
  el('n-done').textContent=requests.filter(r=>r.status==='completed').length;
+ renderBoard();
  const subset=requests.filter(r=>(!status||r.status===status)&&(!q||[r.request_number,r.id,r.name,r.service].some(x=>str(x).toLowerCase().includes(q))));
  el('rows').replaceChildren();
  if(!subset.length){const tr=document.createElement('tr');const td=cell(tr,'Заявок не найдено');td.colSpan=6;el('rows').append(tr);return}
@@ -63,7 +91,7 @@ async function refreshDetails(){
  const fields=[['Номер',r.request_number??r.id],['Клиент',r.name],['Контакт',r.contact],['Услуга',r.service],['Бюджет',r.budget],['Дата',date(r.created_at)],['Описание',r.description]];
  el('detail-content').replaceChildren();
  for(const [name,value] of fields){const div=document.createElement('div'),title=document.createElement('div'),content=document.createElement('div');title.className='muted';title.textContent=name;content.className='value';content.textContent=str(value);div.append(title,content);el('detail-content').append(div)}
- el('new-status').value=label[r.status]?r.status:'new';
+ el('new-status').value=label[r.status]?r.status:'new';el('deadline').value=r.due_date||'';
  const team=await call('/api/admin/team');el('assignee').replaceChildren();
  for(const member of [{email:'',role:'Не назначен'},...team.items]){const option=document.createElement('option');option.value=member.email;option.textContent=member.email?member.email+' ('+member.role+')':member.role;el('assignee').append(option)}
  el('assignee').value=r.assignee_email||'';
@@ -104,6 +132,12 @@ el('staff-form').addEventListener('submit',async e=>{
  e.preventDefault();const form=e.currentTarget,btn=form.querySelector('button');btn.disabled=true;el('staff-status').textContent='Создаём сотрудника...';
  try{const email=el('staff-email').value.trim(),password=el('staff-password').value;await call('/api/admin/staff',{method:'POST',body:JSON.stringify({email,password})});form.reset();el('staff-status').textContent='Сотрудник создан. Передайте ему пароль приватным способом и попросите изменить его при внедрении смены пароля.';await refreshStaff()}
  catch(err){el('staff-status').textContent='Не удалось создать сотрудника: '+err.message}finally{btn.disabled=false}
+});
+el('nav-board').addEventListener('click',()=>{el('board-section').classList.remove('hidden');el('list-section').classList.add('hidden');renderBoard()});
+el('nav-requests').addEventListener('click',()=>{el('board-section').classList.add('hidden');el('list-section').classList.remove('hidden')});
+el('save-deadline').addEventListener('click',async()=>{if(!selected)return;const btn=el('save-deadline');btn.disabled=true;
+ try{await call('/api/admin/requests/'+selected.id+'/deadline',{method:'PATCH',body:JSON.stringify({due_date:el('deadline').value||null})});el('deadline-status').textContent='Срок сохранён';await refreshDetails();await load()}
+ catch(err){el('deadline-status').textContent='Ошибка: '+err.message}finally{btn.disabled=false}
 });
 el('refresh').addEventListener('click',load);el('query').addEventListener('input',render);el('filter').addEventListener('change',render);el('close').addEventListener('click',()=>el('details').close());
 el('save-assignee').addEventListener('click',async()=>{
