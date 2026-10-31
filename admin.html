@@ -10,13 +10,14 @@
 <p id="login-status" role="status" class="muted"></p><a class="muted" href="/">← На главный сайт</a>
 </section>
 <div id="app" class="app hidden">
-<aside><div class="logo">DOS<span style="color:#9baabd"> / ADMIN</span></div><div class="sub">ENGINEERING TEAM</div><nav><button class="navitem" type="button">▦ Заявки и проекты</button><a class="navitem" href="/" style="text-decoration:none">↗ Главный сайт</a></nav></aside>
+<aside><div class="logo">DOS<span style="color:#9baabd"> / ADMIN</span></div><div class="sub">ENGINEERING TEAM</div><nav><button class="navitem" type="button">▦ Заявки и проекты</button><button class="navitem hidden" type="button" id="settings-open">⚙ Настройки Owner</button><a class="navitem" href="/" style="text-decoration:none">↗ Главный сайт</a></nav></aside>
 <main><div class="top"><div><div class="eyebrow">OPERATIONS CONTROL CENTER</div><h1>Управление заявками</h1></div><div><span id="identity" class="muted"></span> <button id="logout" class="btn ghost">Выйти</button></div></div>
 <div class="tiles"><div class="tile"><div class="muted">Всего заявок</div><div id="n-all" class="number">—</div></div><div class="tile"><div class="muted">Новые</div><div id="n-new" class="number">—</div></div><div class="tile"><div class="muted">В работе</div><div id="n-progress" class="number">—</div></div><div class="tile"><div class="muted">Завершённые</div><div id="n-done" class="number">—</div></div></div>
 <section class="panel"><div class="top"><h2>Реестр заказов</h2><button class="btn ghost" id="refresh">Обновить</button></div>
-<div class="toolbar"><input id="query" class="field" placeholder="Поиск по номеру, клиенту, услуге" aria-label="Поиск"><select id="filter" class="field" aria-label="Фильтр по статусу"><option value="">Все статусы</option><option value="new">Новые</option><option value="reviewing">На рассмотрении</option><option value="accepted">Принята</option><option value="in_progress">В работе</option><option value="completed">Завершены</option><option value="cancelled">Отменены</option></select></div>
+<div class="toolbar"><input id="query" class="field" placeholder="Поиск по номеру, клиенту, услуге" aria-label="Поиск"><select id="filter" class="field" aria-label="Фильтр по статусу"><option value="">Все статусы</option><option value="new">Новые</option><option value="reviewing">На рассмотрении</option><option value="accepted">Принята</option><option value="reviewing">На рассмотрении</option><option value="accepted">Принята</option><option value="in_progress">В работе</option><option value="completed">Завершены</option><option value="cancelled">Отменены</option></select></div>
 <div id="notice" role="status" class="notice hidden"></div><div class="tablewrap"><table><thead><tr><th>№</th><th>Клиент</th><th>Услуга</th><th>Статус</th><th>Дата</th><th>Подробнее</th></tr></thead><tbody id="rows"><tr><td colspan="6" class="muted">Загрузка...</td></tr></tbody></table></div></section>
 </main></div>
+<dialog id="settings-dialog"><div class="dialogtop"><h2>Системные настройки</h2><button class="btn ghost" type="button" id="settings-close">Закрыть</button></div><div id="settings-content" class="stack muted"></div></dialog>
 <dialog id="details"><div class="dialogtop"><h2>Карточка заявки</h2><button id="close" class="btn ghost">Закрыть</button></div><div id="detail-content" class="details"></div>
 <form id="status-form" class="stack" style="margin-top:24px"><label>Статус<select id="new-status" class="field"><option value="new">Новая</option><option value="in_progress">В работе</option><option value="completed">Завершена</option><option value="cancelled">Отменена</option></select></label><button type="submit" class="btn">Сохранить статус</button><div id="update-status" role="status" class="muted"></div></form></dialog>
 <script>
@@ -33,7 +34,7 @@ async function call(path,options={}){
  return res.status===204?{}:res.json();
 }
 function showLogin(msg=''){el('app').classList.add('hidden');el('login').classList.remove('hidden');el('login-status').textContent=msg}
-function showApp(user){el('login').classList.add('hidden');el('app').classList.remove('hidden');el('identity').textContent=user.email||'Администратор'}
+function showApp(user){el('settings-open').classList.toggle('hidden',user.role!=='owner');el('login').classList.add('hidden');el('app').classList.remove('hidden');el('identity').textContent=(user.role==='owner'?'Owner':'Manager')+' · '+(user.email||'Администратор')}
 function notice(msg){el('notice').textContent=msg;el('notice').classList.remove('hidden')}
 const str=v=>v===null||v===undefined?'—':String(v);
 const date=v=>{if(!v)return '—';const d=new Date(v);return Number.isNaN(+d)?String(v):d.toLocaleString('ru-RU')};
@@ -66,7 +67,7 @@ async function load(){
  }catch(e){requests=[];render();notice('Не удалось загрузить заявки. Проверьте доступ администратора и подключение API. ('+e.message+')');if(e.status===401||e.status===403)(accessToken=null,showLogin('Сеанс завершён или нет прав администратора.'))}
 }
 async function init(){
- try{const data=await call('/api/admin/me');if(data.role!=='admin')throw Error('Forbidden');showApp(data);await load()}
+ try{const data=await call('/api/admin/me');if(!['owner','manager'].includes(data.role))throw Error('Forbidden');showApp(data);await load()}
  catch(e){showLogin('Для доступа необходим действующий аккаунт администратора и серверная авторизация.')}
 }
 el('login-form').addEventListener('submit',async e=>{
@@ -75,6 +76,11 @@ el('login-form').addEventListener('submit',async e=>{
  catch(e){el('login-status').textContent=e.status===429?('Слишком много неудачных попыток. Повторите вход через '+Math.ceil(Number(e.retryAfter||900)/60)+' мин.'):(e.status===401?'Неверный email или пароль.':e.status===503?'Вход администратора не настроен на сервере.':'Вход не выполнен ('+(e.name||'Error')+': '+(e.message||'unknown')+'). Откройте Console для деталей.')}finally{btn.disabled=false}
 });
 el('logout').addEventListener('click',async()=>{try{await call('/api/admin/logout',{method:'POST'})}catch(e){}accessToken=null;requests=[];showLogin('Вы вышли из панели.')});
+el('settings-close').addEventListener('click',()=>el('settings-dialog').close());
+el('settings-open').addEventListener('click',async()=>{
+ try{const data=await call('/api/admin/settings');const target=el('settings-content');target.replaceChildren();for(const [title,value] of [['Owner',data.owner_email],['Manager',data.manager_email||'Не настроен'],['Manager активен',data.manager_configured?'Да':'Нет']]){const p=document.createElement('p');p.textContent=title+': '+value;target.append(p)}el('settings-dialog').showModal()}
+ catch(err){notice('Настройки доступны только Owner ('+err.message+')')}
+});
 el('refresh').addEventListener('click',load);el('query').addEventListener('input',render);el('filter').addEventListener('change',render);el('close').addEventListener('click',()=>el('details').close());
 el('status-form').addEventListener('submit',async e=>{
  e.preventDefault();if(!selected)return;const btn=e.currentTarget.querySelector('button');btn.disabled=true;
